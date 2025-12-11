@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise For You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #ffe6ee; /* สีพื้นหลังชมพูอ่อน */
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* กล่องหลักสำหรับจัดกลาง */
+        .main-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- ตัวหัวใจหลัก (Locket) --- */
+        .heart-locket {
+            width: 340px;  /* <<< ปรับขนาดใหญ่ขึ้นตรงนี้ */
+            height: 340px;
+            position: relative;
+            cursor: pointer;
+            perspective: 1500px; /* เพิ่มมิติ 3D ให้ดูลึกขึ้น */
+            z-index: 10;
+            
+            /* อนิเมชั่นหัวใจเต้น (ทำงานตลอดเวลาถ้าไม่เอาเมาส์ชี้) */
+            animation: heartbeat 1.5s infinite ease-in-out;
+        }
+
+        /* เมื่อเอาเมาส์ชี้ ให้หยุดเต้นชั่วคราว เพื่อให้เปิดประตูได้นิ่งๆ */
+        .heart-locket:hover {
+            animation-play-state: paused;
+        }
+
+        /* --- แผ่นเสียง (Vinyl) ที่ซ่อนอยู่ข้างใน --- */
+        .vinyl-record {
+            position: absolute;
+            top: 35px; /* จัดกึ่งกลางตามขนาดหัวใจ */
+            left: 35px;
+            width: 270px; /* ขนาดแผ่นเสียง */
+            height: 270px;
+            background: repeating-radial-gradient(
+                #181818, 
+                #181818 10px, 
+                #2e2e2e 11px
+            );
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            z-index: 1; /* อยู่ชั้นในสุด */
+            transition: transform 0.5s;
+        }
+
+        /* รูปตรงกลางแผ่นเสียง */
+        .vinyl-label {
+            width: 100px;
+            height: 100px;
+            background-color: #ff6b95;
+            border-radius: 50%;
+            border: 5px solid white;
+            background-image: url('https://img.icons8.com/ios-filled/100/ffffff/music-record.png'); /* เปลี่ยนรููปตรงนี้ */
+            background-size: 50%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* สั่งหมุนแผ่นเสียงตอนเมาส์ชี้ */
+        .heart-locket:hover .vinyl-record {
+            animation: spin 3s linear infinite;
+        }
+
+        /* --- ประตูซ้ายและขวา --- */
+        .door {
+            position: absolute;
+            top: 0;
+            width: 50%; /* กว้างครึ่งหนึ่งของหัวใจ (170px) */
+            height: 100%;
+            overflow: hidden; 
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); /* เอฟเฟกต์เปิดแบบสมูท */
+            z-index: 5; /* บังแผ่นเสียงไว้ */
+            backface-visibility: hidden; /* ซ่อนด้านหลังประตู */
+        }
+
+        .door-left {
+            left: 0;
+            transform-origin: left center; /* จุดพับอยู่ซ้าย */
+            border-radius: 150px 0 0 150px;
+        }
+
+        .door-right {
+            right: 0;
+            transform-origin: right center; /* จุดพับอยู่ขวา */
+            border-radius: 0 150px 150px 0;
+        }
+
+        /* --- รูปทรงหัวใจสีชมพู (เนื้อประตู) --- */
+        .heart-shape {
+            position: absolute;
+            top: 0;
+            width: 340px; /* ต้องกว้างเท่าแม่ (340px) */
+            height: 340px;
+            background-color: #ff6b95; /* สีชมพูของหัวใจ */
+            
+            /* วาดรูปหัวใจด้วย SVG Path */
+            clip-path: path('M170 300 L50 190 C20 160 20 110 50 80 C80 50 130 50 160 80 L170 90 L180 80 C210 50 260 50 290 80 C320 110 320 160 290 190 L170 300 Z');
+            
+            /* เพิ่มเงาให้ดูนูนมีมิติ */
+            filter: drop-shadow(0 -5px 10px rgba(255, 107, 149, 0.5));
+        }
+
+        /* จัดตำแหน่งรูปให้ตรงล็อค */
+        .door-left .heart-shape { left: 0; }
+        .door-right .heart-shape { left: -170px; } /* ดึงกลับมาครึ่งนึง */
+
+        /* --- สั่งเปิดประตู (Animation) --- */
+        .heart-locket:hover .door-left { transform: rotateY(-110deg); }
+        .heart-locket:hover .door-right { transform: rotateY(110deg); }
+
+
+        /* --- ปุ่มเมนูรอบๆ --- */
+        .menu-btn {
+            position: absolute;
+            background-color: white;
+            color: #ff6b95;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            white-space: nowrap;
+            z-index: 2;
+        }
+        .menu-btn:hover {
+            transform: scale(1.1);
+            background-color: #ff6b95;
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 107, 149, 0.4);
+        }
+
+        /* ตำแหน่งปุ่ม (ปรับให้ห่างออกมาหน่อยเพราะหัวใจใหญ่ขึ้น) */
+        .btn-1 { top: 0; left: -20px; animation: float 3s infinite; }
+        .btn-2 { top: 0; right: -20px; animation: float 3s infinite 0.5s; }
+        .btn-3 { bottom: 0; left: -20px; animation: float 3s infinite 1s; }
+        .btn-4 { bottom: 0; right: -20px; animation: float 3s infinite 1.5s; }
+
+
+        /* --- Keyframes --- */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.1); } /* ขยาย */
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); } /* ขยายอีกที */
+            60% { transform: scale(1); }
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* มือถือ */
+        @media (max-width: 500px) {
+            .main-container { width: 350px; height: 350px; }
+            .heart-locket { width: 260px; height: 260px; } /* ลดขนาดลงหน่อยในมือถือ */
+            .heart-shape { width: 260px; height: 260px; clip-path: path('M130 230 L40 145 C15 120 15 85 40 60 C65 35 105 35 130 60 L130 60 L130 60 C155 35 195 35 220 60 C245 85 245 120 220 145 L130 230 Z'); } 
+            .door-right .heart-shape { left: -130px; }
+            .vinyl-record { width: 200px; height: 200px; top: 30px; left: 30px; }
+            
+            /* จัดปุ่มใหม่ให้ไม่บัง */
+            .btn-1 { top: -40px; left: 0; }
+            .btn-2 { top: -40px; right: 0; }
+            .btn-3 { bottom: -40px; left: 0; }
+            .btn-4 { bottom: -40px; right: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="heart-locket">
+            
+            <div class="vinyl-record">
+                <div class="vinyl-label"></div>
+            </div>
+
+            <div class="door door-left">
+                <div class="heart-shape"></div>
+            </div>
+
+            <div class="door door-right">
+                <div class="heart-shape"></div>
+            </div>
+
+        </div>
+
+        <a href="card.html" class="menu-btn btn-1">💌 ความในใจ</a>
+        <a href="gallery.html" class="menu-btn btn-2">📸 รูปคู่เรา</a>
+        <a href="surprise.html" class="menu-btn btn-3">🎁 ของขวัญ</a>
+        <a href="music.html" class="menu-btn btn-4">🎵 เพลงรัก</a>
+
+    </div>
+
+</body>
+</html>
